@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the service.
 */}}
-{{- define "onekg-service.name" -}}
+{{- define "onekg.name" -}}
 {{- default .Values.serviceName .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "onekg-service.fullname" -}}
+{{- define "onekg.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,16 +24,16 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "onekg-service.chart" -}}
+{{- define "onekg.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "onekg-service.labels" -}}
-helm.sh/chart: {{ include "onekg-service.chart" . }}
-{{ include "onekg-service.selectorLabels" . }}
+{{- define "onekg.labels" -}}
+helm.sh/chart: {{ include "onekg.chart" . }}
+{{ include "onekg.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,29 +45,34 @@ service.onekg.io/name: {{ .Values.serviceName }}
 {{/*
 Selector labels
 */}}
-{{- define "onekg-service.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "onekg-service.name" . }}
+{{- define "onekg.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "onekg.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "onekg-service.serviceAccountName" -}}
-{{- if .Values.security.serviceAccount.create }}
-{{- default (include "onekg-service.fullname" .) .Values.security.serviceAccount.name }}
+{{- define "onekg.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "onekg.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.security.serviceAccount.name }}
+{{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/*
 Health check path with service prefix
 */}}
-{{- define "onekg-service.healthPath" -}}
-{{- if .Values.healthCheck.enabled }}
-{{- .Values.healthCheck.path }}
+{{- define "onekg.healthPath" -}}
+{{- if .Values.probes.enabled }}
+{{- .Values.probes.liveness.path }}
 {{- else }}
-{{- printf "%s/health" .Values.ingress.path }}
+{{- $path := .Values.ingress.path | default "/" }}
+{{- if hasSuffix "/" $path }}
+{{- printf "%shealth" $path }}
+{{- else }}
+{{- printf "%s/health" $path }}
+{{- end }}
 {{- end }}
 {{- end }}

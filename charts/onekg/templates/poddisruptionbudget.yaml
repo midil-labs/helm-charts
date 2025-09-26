@@ -2,12 +2,12 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "onekg-service.fullname" . }}
+  name: {{ include "onekg.fullname" . }}
   labels:
-    {{- include "onekg-service.labels" . | nindent 4 }}
+    {{- include "onekg.labels" . | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "onekg-service.selectorLabels" . | nindent 6 }}
+      {{- include "onekg.selectorLabels" . | nindent 6 }}
 {{- end }}

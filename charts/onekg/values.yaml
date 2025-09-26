@@ -1,0 +1,202 @@
+## OneKG service chart values (reorganized & refined)
+
+# Service identification (set by parent app)
+serviceName: ""
+nameOverride: ""
+fullnameOverride: ""
+replicaCount: 2
+
+
+image:
+  registry: "ghcr.io/midil-labs"
+  repository: "onekg-api"
+  service: ""
+  tag: latest
+  pullPolicy: IfNotPresent
+  pullSecrets:
+    - name: ghcr-secret
+
+
+service:
+  type: ClusterIP
+  http:
+    port: 80
+    targetPort: 8000
+
+
+# Traefik IngressRoute (optional)
+ingressRoute:
+  enabled: true
+  host: "onekg.midil.io"
+  tls:
+    enabled: true
+    certResolver: "myresolver"
+
+  basePath: "/apis/v1"
+  routes: []
+  # Example:
+  # routes:
+  #   - match: "Host(`onekg.midil.io`) && PathPrefix(`/apis/v1/notification`)"
+  #     services:
+  #       - name: notification-service
+  #         port: 8080
+  #     middlewares:
+  #       - name: strip-apis-v1
+  #   - match: "Host(`onekg.midil.io`) && PathPrefix(`/apis/v1/checkin`)"
+  #     services:
+  #       - name: checkin-service
+  #         port: 8080
+  #     middlewares:
+  #       - name: strip-apis-v1
+
+# Optional explicit middlewares
+middlewares:
+  stripPrefixes: []
+  # Example:
+  # stripPrefixes:
+  #   - name: strip-apis-v1
+  #     prefixes:
+  #       - "/apis/v1"
+
+# CORS configuration
+cors:
+  enabled: true
+  environment: "production"
+  allowedOrigins: []
+  allowedMethods: []
+  allowedHeaders: []
+  allowCredentials: true
+  maxAge: 86400
+
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 75
+
+
+probes:
+  enabled: true
+  liveness:
+    path: /health
+    port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 15
+    timeoutSeconds: 2
+    failureThreshold: 3
+  readiness:
+    path: /health
+    port: 8000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  startup:
+    path: /health
+    port: 8000
+    failureThreshold: 30
+    periodSeconds: 10
+
+# Monitoring
+monitoring:
+  enabled: false
+  port: 9090
+  path: "/metrics"
+
+# Service account and security contexts
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Affinity and tolerations
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Environment variables
+env: []
+envFrom: []
+
+# Centralized logging
+logging:
+  enabled: false
+  level: INFO
+  format: json
+
+
+midil:
+  config:
+    api:
+      database:
+        name: "checkin_db"
+        collection: "checkins"
+      server:
+        port: 8080
+        enableHttpLogging: true
+        logLevel: "INFO"
+      databaseUri: ""   # optional override, otherwise build from secrets
+    auth:
+      type: "cognito"
+      userPoolId: "us-east-1_dnBcODUyQ"   # non-sensitive, so in config
+      clientId: "2j97fbdu588je17scvnlm9t4bk"
+      region: "us-east-1"
+    event:
+      consumers: {}
+      producers: {}
+
+  secrets:
+    api:
+      databaseUri: "mongodb://username:password@localhost:27017/checkin_db"
+    auth:
+      clientSecret: ""   # if applicable
+    event:
+      consumers: {}
+      producers: {}
+
+# Generic Helm overrides (global) 
+extraVolumeMounts: []
+extraVolumes: []
+
+# App-specific configs (non-sensitive)
+config:
+  extraConfig: {}
+  # Example:
+  #   LOG_LEVEL: "debug"
+  #   FEATURE_X_ENABLED: "true"
+
+# App-specific secrets (sensitive values)
+secrets:
+  extraSecrets: {}
+  # Example:
+  #   AWS_ACCESS_KEY_ID: "AKIAXXXXX"
+  #   AWS_SECRET_ACCESS_KEY: "SECRETXXXX"

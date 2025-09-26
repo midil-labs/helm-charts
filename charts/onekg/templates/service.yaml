@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "onekg-service.fullname" . }}
+  name: {{ include "onekg.fullname" . }}
   labels:
-    {{- include "onekg-service.labels" . | nindent 4 }}
+    {{- include "onekg.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.service.http.port }}
       targetPort: http
       protocol: TCP
       name: http
@@ -18,4 +18,4 @@ spec:
       name: metrics
     {{- end }}
   selector:
-    {{- include "onekg-service.selectorLabels" . | nindent 4 }}
+    {{- include "onekg.selectorLabels" . | nindent 4 }}
