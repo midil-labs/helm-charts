@@ -76,3 +76,22 @@ Health check path with service prefix
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Recursively flattens nested values into __ separated keys
+Usage: {{ include "onekg.flatten" (dict "root" "MIDIL" "section" "API" "values" .Values.midil.config.api) }}
+*/}}
+{{- define "onekg.flatten" -}}
+{{- $root := .root -}}
+{{- $section := .section -}}
+{{- $values := .values -}}
+{{- range $key, $value := $values }}
+  {{- $fullKey := printf "%s__%s" $section ($key | upper) -}}
+  {{- if kindIs "map" $value }}
+    {{- include "onekg.flatten" (dict "root" $root "section" $fullKey "values" $value) }}
+  {{- else }}
+{{ $root }}__{{ $fullKey }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}
+

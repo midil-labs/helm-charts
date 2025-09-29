@@ -6,18 +6,12 @@ metadata:
     app.kubernetes.io/name: {{ include "onekg.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
-  {{- range $section, $values := .Values.midil.config }}
-  {{- range $key, $value := $values }}
-  {{- if kindIs "map" $value }}
-  MIDIL__{{ $section | upper }}__{{ $key | upper }}: {{ $value | toJson | quote }}
-  {{- else }}
-  MIDIL__{{ $section | upper }}__{{ $key | upper }}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
-  {{- end }}
+{{- range $section, $values := .Values.midil.config }}
+{{ include "onekg.flatten" (dict "root" "MIDIL" "section" ($section | upper) "values" $values) | indent 2 }}
+{{- end }}
 
-  {{- with .Values.config.extraConfig }}
-  {{- range $key, $value := . }}
+{{- with .Values.config.extraConfig }}
+{{- range $key, $value := . }}
   {{ $key }}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
+{{- end }}
+{{- end }}

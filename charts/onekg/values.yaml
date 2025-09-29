@@ -4,17 +4,24 @@
 serviceName: ""
 nameOverride: ""
 fullnameOverride: ""
-replicaCount: 2
+replicaCount: 1
 
 
 image:
   registry: "ghcr.io/midil-labs"
-  repository: "onekg-api"
   service: ""
   tag: latest
   pullPolicy: IfNotPresent
   pullSecrets:
     - name: ghcr-secret
+  # Create a docker-registry Secret for GHCR
+  createPullSecret: false
+  pullSecretName: ghcr-secret
+  dockerServer: ghcr.io
+  credentials:
+    username: ""
+    password: ""
+    email: ""
 
 
 service:
@@ -34,20 +41,6 @@ ingressRoute:
 
   basePath: "/apis/v1"
   routes: []
-  # Example:
-  # routes:
-  #   - match: "Host(`onekg.midil.io`) && PathPrefix(`/apis/v1/notification`)"
-  #     services:
-  #       - name: notification-service
-  #         port: 8080
-  #     middlewares:
-  #       - name: strip-apis-v1
-  #   - match: "Host(`onekg.midil.io`) && PathPrefix(`/apis/v1/checkin`)"
-  #     services:
-  #       - name: checkin-service
-  #         port: 8080
-  #     middlewares:
-  #       - name: strip-apis-v1
 
 # Optional explicit middlewares
 middlewares:
@@ -157,28 +150,24 @@ logging:
 midil:
   config:
     api:
-      database:
-        name: "checkin_db"
-        collection: "checkins"
       server:
         port: 8080
-        enableHttpLogging: true
-        logLevel: "INFO"
-      databaseUri: ""   # optional override, otherwise build from secrets
     auth:
       type: "cognito"
-      userPoolId: "us-east-1_dnBcODUyQ"   # non-sensitive, so in config
-      clientId: "2j97fbdu588je17scvnlm9t4bk"
+      user_pool_id: "us-east-1_dnBcODUyQ"   # non-sensitive, so in config
+      client_id: "2j97fbdu588je17scvnlm9t4bk"
       region: "us-east-1"
     event:
       consumers: {}
       producers: {}
+    logger:
+      log_level: "INFO"
+      enable_http_logging: true
 
   secrets:
-    api:
-      databaseUri: "mongodb://username:password@localhost:27017/checkin_db"
+    api: {}
     auth:
-      clientSecret: ""   # if applicable
+      client_secret: ""   # if applicable
     event:
       consumers: {}
       producers: {}
