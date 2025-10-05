@@ -2,13 +2,15 @@ apiVersion: v2
 name: midil
 description: Midil Helm Chart for APIs using the Midil Microservice Framework
 type: application
-version: 1.0.0
-appVersion: "1.0"
+version: 0.1.0
+appVersion: "0.1.0"
 keywords:
   - midil
   - microservice
   - template
 home: https://github.com/midil-labs/helm-charts
+sources:
+  - https://github.com/midil-labs/midil-kit
 maintainers:
   - name: Ing. Michael Kofi Armah
     email: michael.armah@midil.io
