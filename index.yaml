@@ -1,1 +1,4 @@
 # Helm Chart Repository
+apiVersion: v1
+entries: {}
+generated: "2025-10-05T15:00:00Z"
