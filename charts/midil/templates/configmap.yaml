@@ -1,0 +1,21 @@
+{{- if .Values.midil.config.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    app.kubernetes.io/name: {{ include "app.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+{{- range $section, $values := .Values.midil.config }}
+  {{- if ne $section "enabled" }}
+{{ include "midil.flatten" (dict "root" "MIDIL" "section" ($section | upper) "values" $values) | indent 2 }}
+  {{- end }}
+{{- end }}
+
+{{- with .Values.config.extraConfig }}
+{{- range $key, $value := . }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
