@@ -1,0 +1,37 @@
+name: Helm Chart Validation
+
+on:
+  pull_request:
+    paths:
+      - charts/midil/**
+
+jobs:
+  validate:
+    defaults:
+      run:
+        working-directory: charts/port-ocean/
+    runs-on: ubuntu-latest
+    name: Validate Helm Chart
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+
+    - name: Create k8s Kind Cluster
+      uses: helm/kind-action@v1.5.0
+
+    - name: Lint Helm Chart
+      run: helm lint .
+
+    - name: Build dependencies of Helm Chart
+      run: |
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+        helm repo update
+        helm dependency update
+
+    - name: Validate Helm Chart
+      run: |
+        helm template --set midil.config.enabled=true --set midil.config.api.server.port=8080 --set midil.config.api.server.host=0.0.0.0 --set midil.config.auth.type=cognito --set midil.config.auth.userPoolId=us-east-1_dnBcODUyQ --set midil.config.auth.clientId=2j97fbdu588je17scvnlm9t4bk --set midil.config.auth.region=us-east-1 . | kubectl apply --dry-run=client -f -
