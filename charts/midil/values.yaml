@@ -39,6 +39,9 @@ ingressRoute:
   tls:
     enabled: false
     secretName: "my-tls-secret-name"
+  route:
+    pathPrefix: "/"
+    servicePort: 80
   routes: []
 
 # CORS configuration
