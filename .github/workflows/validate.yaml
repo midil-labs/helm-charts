@@ -9,7 +9,7 @@ jobs:
   validate:
     defaults:
       run:
-        working-directory: charts/port-ocean/
+        working-directory: charts/midil/
     runs-on: ubuntu-latest
     name: Validate Helm Chart
 
