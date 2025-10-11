@@ -38,7 +38,7 @@ ingressRoute:
   entryPoints: [websecure]
   tls:
     enabled: true
-    certResolver: "myresolver"
+    secretName: "my-tls-secret-name"
   routes: []
 
 # CORS configuration
