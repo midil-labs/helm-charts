@@ -35,10 +35,13 @@ ingressRoute:
   enabled: true
   host: "onekg.midil.io"
   # Traefik entry points. Defaults to websecure (443). Override to ["web", "websecure"] for local HTTP+HTTPS.
-  entryPoints: [websecure]
+  entryPoints: [websecure, web]
   tls:
-    enabled: true
-    certResolver: "myresolver"
+    enabled: false
+    secretName: "my-tls-secret-name"
+  route:
+    pathPrefix: "/"
+    servicePort: 80
   routes: []
 
 # CORS configuration
